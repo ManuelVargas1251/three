@@ -23,11 +23,11 @@ container.appendChild(renderer.domElement);
 // const controls = new OrbitControls(camera, renderer.domElement);
 // controls.enableDamping = true;
 
-// 3. Simple Test Mesh (Cube)
-const geometry = new THREE.BoxGeometry();   // box
+// 3. Mesh (Icosahedron)
+const geometry = new THREE.IcosahedronGeometry(1.1,2);   // icosahedron(radius, detail)
 const material = new THREE.MeshBasicMaterial({ color: 0x00ff99, wireframe: false });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const icosahedron = new THREE.Mesh(geometry, material);
+scene.add(icosahedron);
 
 // 4. Handle Mobile Resizing & Orientation Changes
 window.addEventListener('resize', () => {
@@ -42,8 +42,8 @@ window.addEventListener('resize', () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  cube.rotation.x += 0.03;
-  cube.rotation.y += 0.09;
+  icosahedron.rotation.x += 0.03;
+  icosahedron.rotation.y += 0.06;
 
 //   controls.update();
   renderer.render(scene, camera);

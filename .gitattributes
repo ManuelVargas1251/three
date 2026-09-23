@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Export ignoring (keeps project size light when downloading repository archives)
+.github/ export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
