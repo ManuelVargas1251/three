@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // 1. Scene, Camera, Renderer
 const container = document.getElementById('canvas');
@@ -20,14 +20,29 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 container.appendChild(renderer.domElement);
 
 // 2. Add Orbit Controls (Works with Touch/Mobile Gestures)
-// const controls = new OrbitControls(camera, renderer.domElement);
-// controls.enableDamping = true;
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
 
 // 3. Mesh (Icosahedron)
 const geometry = new THREE.IcosahedronGeometry(1.1,2);   // icosahedron(radius, detail)
 const material = new THREE.MeshBasicMaterial({ color: 0x00ff99, wireframe: false });
 const icosahedron = new THREE.Mesh(geometry, material);
 scene.add(icosahedron);
+
+// wireframe toggle
+// Enable wireframe when mouse or touch/finger is pressed down
+renderer.domElement.addEventListener('pointerdown', () => {
+    material.wireframe = true;
+});
+
+// Disable wireframe when released or dragged off-screen
+const disableWireframe = () => {
+    material.wireframe = false;
+};
+
+// when the pointer is released or canceled, disable the wireframe
+window.addEventListener('pointerup', disableWireframe);
+window.addEventListener('pointercancel', disableWireframe);
 
 // 4. Handle Mobile Resizing & Orientation Changes
 window.addEventListener('resize', () => {
@@ -45,7 +60,7 @@ function animate() {
   icosahedron.rotation.x += 0.03;
   icosahedron.rotation.y += 0.06;
 
-//   controls.update();
+  controls.update();
   renderer.render(scene, camera);
 }
 
