@@ -1,5 +1,7 @@
+// Imports
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 
 // Configuration & Constants
 const REVEAL_SPEED = 0.03; // Drag sensitivity
@@ -23,7 +25,15 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 container.appendChild(renderer.domElement);
 
-// Add Orbit Controls (Works with Touch/Mobile Gestures)
+// add text overlay using CSS3DRenderer
+const cssRenderer = new CSS3DRenderer();
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
+cssRenderer.domElement.style.position = 'absolute';
+cssRenderer.domElement.style.top = '0';
+cssRenderer.domElement.style.pointerEvents = 'none';
+document.body.appendChild(cssRenderer.domElement);
+
+// add Orbit Controls (Works with Touch/Mobile Gestures)
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
@@ -50,6 +60,45 @@ const icosahedronGroup = new THREE.Group();
 icosahedronGroup.add(solidMesh);
 icosahedronGroup.add(wireframeMesh);
 scene.add(icosahedronGroup);
+
+const textDiv = document.createElement('div');
+textDiv.className = 'secret-core-text';
+const releaseText = `
+  <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px;">SUELTA</div>
+  <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px;">ME</div>
+  <div style="font-size: 28px; line-height: 1.1;">🌌</div>
+`;
+const thanksText = `
+  <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; display: inline-block;">
+    <span style="letter-spacing: 0px; margin-right: -2px;">¡</span>GRACIAS!
+  </div>
+  <div style="font-size: 28px; line-height: 1.1;">🙏</div>
+`;
+let activeText = 'release';
+
+const setText = (textState) => {
+  if (textState === activeText) {
+    return;
+  }
+
+  activeText = textState;
+  textDiv.innerHTML = textState === 'thanks' ? thanksText : releaseText;  //
+};
+
+textDiv.innerHTML = releaseText;
+textDiv.style.textAlign = 'center';
+textDiv.style.textShadow = '0 0 10px #00ff99, 0 0 20px #00ff99, 0 0 40px #00ff99';
+textDiv.style.letterSpacing = '2px';
+textDiv.style.textTransform = 'uppercase';
+textDiv.style.color = '#00ff99';
+textDiv.style.fontSize = '24px';
+textDiv.style.fontWeight = 'bold';
+textDiv.style.fontFamily = 'sans-serif';
+
+const secretTextObject = new CSS3DObject(textDiv);
+secretTextObject.position.set(0, 0, 0);
+secretTextObject.scale.set(0.01, 0.01, 0.01);
+icosahedronGroup.add(secretTextObject);
 
 // Drag Interaction Tracker: State Variables
 let isDragging = false;
@@ -79,6 +128,7 @@ window.addEventListener('resize', () => {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  cssRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // Animation Loop
@@ -89,15 +139,31 @@ function animate() {
     dragProgress = Math.max(0, dragProgress - DECAY_SPEED);
   }
 
+  setText(!isDragging && dragProgress > 0 ? 'thanks' : 'release');
+  textDiv.style.opacity = dragProgress;
+  secretTextObject.visible = dragProgress > 0.01;
+
   solidMaterial.opacity = 1 - dragProgress;
   wireframeMaterial.opacity = Math.max(0.2, dragProgress);
   solidMesh.visible = solidMaterial.opacity > 0.01;
 
-  icosahedronGroup.rotation.x += 0.03;
-  icosahedronGroup.rotation.y += 0.06;
+
+  // if text, rotate differently than the icosahedron
+  icosahedronGroup.children.forEach(child => {
+    if (child instanceof CSS3DObject) {
+      // console.log('Rotating CSS3DObject');
+      // child.rotation.x += 0.01;
+      child.rotation.y += 0.02;
+    } else {
+      child.rotation.x += 0.03;
+      child.rotation.y += 0.06;
+    }
+  });
 
   controls.update();
+
   renderer.render(scene, camera);
+  cssRenderer.render(scene, camera);
 }
 
 animate();

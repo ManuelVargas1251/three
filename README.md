@@ -42,11 +42,12 @@ flowchart LR
 
     %% Subgraph Styling
     style Setup fill:#fcfcfc,stroke:#9e9e9e,stroke-width:1px
-    style Loop fill:#fcfcfc,stroke:#9e9e9e,stroke-width:1px
-    style Output fill:#fcfcfc,stroke:#9e9e9e,stroke-width:1px
+    style Engine fill:#fcfcfc,stroke:#9e9e9e,stroke-width:1px
+    style Display fill:#fcfcfc,stroke:#9e9e9e,stroke-width:1px
 ```
 
 ## references
 - https://threejs.org/manual/#creating-a-scene
 - https://threejs.org/docs/#SphereGeometry
-- 
+- https://en.wikipedia.org/wiki/Noli_me_tangere
+- https://threejs.org/manual/#creating-text
