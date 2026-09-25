@@ -27,8 +27,8 @@ flowchart LR
     UserInputs["User Input<br/><i>Touch, Drag, Resize</i>"] -. "events" .-> Update
 
     %% Setup Arguments from Above
-    Scene -. "scene argument" .-> Render
-    Camera -. "camera argument" .-> Render
+    Scene -. "scene argument" .-> Renderer
+    Camera -. "camera argument" .-> Renderer
 
     %% Render loop feedback
     Loop -->|"Triggers continuous updates"| Renderer
