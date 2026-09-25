@@ -24,7 +24,7 @@ flowchart LR
     end
 
     %% Inputs on the Left
-    UserInputs["User Input<br/><i>Touch, Drag, Resize</i>"] -. "events" .-> Update
+    UserInputs["User Input<br/><i>Touch, Drag, Resize</i>"] -. "events" .-> Renderer
 
     %% Setup Arguments from Above
     Scene -. "scene argument" .-> Renderer
