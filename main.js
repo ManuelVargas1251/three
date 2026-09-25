@@ -70,7 +70,7 @@ const releaseText = `
 `;
 const thanksText = `
   <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; display: inline-block;">
-    <span style="letter-spacing: 0px; margin-right: -2px;">¡</span>GRACIAS!
+    <span style="letter-spacing: 0px; margin-right: 2px;">¡</span>GRACIAS!
   </div>
   <div style="font-size: 28px; line-height: 1.1;">🙏</div>
 `;
