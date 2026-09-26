@@ -4,13 +4,15 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 
 // Configuration & Constants
-const REVEAL_SPEED = 0.03; // Drag sensitivity
-const DECAY_SPEED = 0.016; // Speed at which wireframe fades back to solid
-let MATERIAL_COLOR = 0x00ff99;
+const REVEAL_SPEED = 0.03;  // Drag sensitivity
+const DECAY_SPEED = 0.016;  // Speed at which wireframe fades back to solid
+const MATERIAL_COLOR = 0x00ff99;
 
-// Scene, Camera, Renderer
-const container = document.getElementById('canvas');
+// Scene, Camera, Renderers
+const container = document.getElementById('canvas') || document.body;
+
 const scene = new THREE.Scene();
+
 const camera = new THREE.PerspectiveCamera(
   60,   // field of view in degrees 75
   window.innerWidth / window.innerHeight,   // aspect ratio
@@ -19,25 +21,27 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 4;
 
+// Renderer 1. WebGL Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 // resolution rendering on mobile high-DPI screens
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 container.appendChild(renderer.domElement);
 
-// add text overlay using CSS3DRenderer
+// Renderer 2. CSS3D Renderer (Overlay)
 const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
 cssRenderer.domElement.style.top = '0';
-cssRenderer.domElement.style.pointerEvents = 'none';
+cssRenderer.domElement.style.left = '0';
+cssRenderer.domElement.style.pointerEvents = 'none'; // Pass touch/click through to WebGL
 document.body.appendChild(cssRenderer.domElement);
 
 // add Orbit Controls (Works with Touch/Mobile Gestures)
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+controls.enableDamping = true;  // Enable smooth damping (inertia) for orbit controls
 
-// Meshes (Solid Base + Wireframe Overlay)
+// Geometry & Meshes
 const geometry = new THREE.IcosahedronGeometry(1.1, 2);
 
 const solidMaterial = new THREE.MeshBasicMaterial({
@@ -61,28 +65,28 @@ icosahedronGroup.add(solidMesh);
 icosahedronGroup.add(wireframeMesh);
 scene.add(icosahedronGroup);
 
+// Dynamic Text Element Setup
 const textDiv = document.createElement('div');
-textDiv.className = 'secret-core-text';
+textDiv.className = 'text-object';
 const releaseText = `
   <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px;">SUELTA</div>
   <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px;">ME</div>
   <div style="font-size: 28px; line-height: 1.1;">🌌</div>
 `;
+
 const thanksText = `
   <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; display: inline-block;">
     <span style="letter-spacing: 0px; margin-right: 2px;">¡</span>GRACIAS!
   </div>
   <div style="font-size: 28px; line-height: 1.1;">🙏</div>
 `;
+
 let activeText = 'release';
 
 const setText = (textState) => {
-  if (textState === activeText) {
-    return;
-  }
-
+  if (textState === activeText) return;
   activeText = textState;
-  textDiv.innerHTML = textState === 'thanks' ? thanksText : releaseText;  //
+  textDiv.innerHTML = textState === 'thanks' ? thanksText : releaseText;
 };
 
 textDiv.innerHTML = releaseText;
@@ -95,12 +99,12 @@ textDiv.style.fontSize = '24px';
 textDiv.style.fontWeight = 'bold';
 textDiv.style.fontFamily = 'sans-serif';
 
-const secretTextObject = new CSS3DObject(textDiv);
-secretTextObject.position.set(0, 0, 0);
-secretTextObject.scale.set(0.01, 0.01, 0.01);
-icosahedronGroup.add(secretTextObject);
+const TextObject = new CSS3DObject(textDiv);
+TextObject.position.set(0, 0, 0);
+TextObject.scale.set(0.01, 0.01, 0.01);
+icosahedronGroup.add(TextObject);
 
-// Drag Interaction Tracker: State Variables
+// Drag Tracking
 let isDragging = false;
 let dragProgress = 0; // 0 = Solid, 1 = Full Wireframe
 
@@ -135,30 +139,28 @@ window.addEventListener('resize', () => {
 function animate() {
   requestAnimationFrame(animate);
 
+  // Decay progress back to solid when user isn't dragging
   if (!isDragging && dragProgress > 0) {
     dragProgress = Math.max(0, dragProgress - DECAY_SPEED);
   }
 
+  // Update Text & Opacity
   setText(!isDragging && dragProgress > 0 ? 'thanks' : 'release');
-  textDiv.style.opacity = dragProgress;
-  secretTextObject.visible = dragProgress > 0.01;
+  textDiv.style.opacity = dragProgress.toString();
+  TextObject.visible = dragProgress > 0.01;
 
   solidMaterial.opacity = 1 - dragProgress;
   wireframeMaterial.opacity = Math.max(0.2, dragProgress);
   solidMesh.visible = solidMaterial.opacity > 0.01;
 
+  // Direct Rotations
+  solidMesh.rotation.x += 0.03;
+  solidMesh.rotation.y += 0.06;
 
-  // if text, rotate differently than the icosahedron
-  icosahedronGroup.children.forEach(child => {
-    if (child instanceof CSS3DObject) {
-      // console.log('Rotating CSS3DObject');
-      // child.rotation.x += 0.01;
-      child.rotation.y += 0.02;
-    } else {
-      child.rotation.x += 0.03;
-      child.rotation.y += 0.06;
-    }
-  });
+  wireframeMesh.rotation.x += 0.03;
+  wireframeMesh.rotation.y += 0.06;
+
+  TextObject.rotation.y += 0.02;
 
   controls.update();
 

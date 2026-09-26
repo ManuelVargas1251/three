@@ -40,9 +40,8 @@ flowchart LR
     style Scene fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
     style Camera fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
     style UserInputs fill:#f3e5f5,stroke:#8e24aa,stroke-width:1px,stroke-dasharray: 5 5
-    style Schedule fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style Update fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style Render fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style Renderer fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style Loop fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     style Canvas fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
 
     %% Subgraph Styling
