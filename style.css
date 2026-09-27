@@ -10,6 +10,10 @@ html, body {
   height: 100%;
   overflow: hidden; /* Prevents mobile scroll bouncing */
   background-color: rgb(3, 253, 153);
+  -webkit-touch-callout: none; /* Prevents callout menu on press & hold */
+  -webkit-user-select: none;   /* Prevents text selection highlight */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* Removes box tap highlight */
 }
 
 /* Make canvas fill full mobile screen */
