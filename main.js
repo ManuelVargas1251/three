@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+import { createStarfield } from './starfield.js';
 
 // Configuration & Constants
 const REVEAL_SPEED = 0.03;  // Drag sensitivity
@@ -40,6 +41,18 @@ document.body.appendChild(cssRenderer.domElement);
 // add Orbit Controls (Works with Touch/Mobile Gestures)
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;  // Enable smooth damping (inertia) for orbit controls
+
+// Returns a random direction vector on the unit sphere (used for starfield placement)
+function randomDirection() {
+  const y = Math.random() * 2 - 1;
+  const angle = Math.random() * Math.PI * 2;
+  const radius = Math.sqrt(1 - y * y);
+  return new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+}
+
+// Camera-centered background layer stay within the far clipping plane while zooming.
+const starfieldGroup = createStarfield(randomDirection)
+scene.add(starfieldGroup);
 
 // Geometry & Meshes
 const geometry = new THREE.IcosahedronGeometry(1.1, 2);
@@ -136,8 +149,12 @@ window.addEventListener('resize', () => {
 });
 
 // Animation Loop
+let previousFrameTime = performance.now();
 function animate() {
   requestAnimationFrame(animate);
+  const now = performance.now();
+  const delta = Math.min((now - previousFrameTime) / 1000, 0.1);
+  previousFrameTime = now;
 
   // Decay progress back to solid when user isn't dragging
   if (!isDragging && dragProgress > 0) {
@@ -163,6 +180,11 @@ function animate() {
   TextObject.rotation.y += 0.02;
 
   controls.update();
+
+  if (starfieldGroup) {
+    starfieldGroup.position.copy(camera.position);
+    starfieldGroup.rotation.y += 0.006 * delta;
+  }
 
   renderer.render(scene, camera);
   cssRenderer.render(scene, camera);
